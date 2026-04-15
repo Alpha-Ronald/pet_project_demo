@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled/features/auth/reset_password.dart';
+import 'package:untitled/features/auth/sign_up.dart';
 
-import 'auth_background.dart';
-import 'auth_textfield.dart';
-
-
+import '../dashboard/dashboard.dart';
+import '../widgets/auth_background.dart';
+import '../widgets/auth_textfield.dart';
 
 class LoginScreenUI extends StatelessWidget {
   const LoginScreenUI({super.key});
@@ -22,17 +23,26 @@ class LoginScreenUI extends StatelessWidget {
             const CustomTextFieldUI(label: "Email"),
             const CustomTextFieldUI(label: "Password", isPassword: true),
 
-            // Forgot Password
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Align(
                 alignment: Alignment.centerRight,
-                child: Text(
-                  'Forgot Password?',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14.sp,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ResetPasswordScreen1UI(),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14.sp,
+                    ),
                   ),
                 ),
               ),
@@ -42,19 +52,29 @@ class LoginScreenUI extends StatelessWidget {
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                height: 56.h,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF001233),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DashboardScreenUI(),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 56.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF001233),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Login",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -108,22 +128,32 @@ class LoginScreenUI extends StatelessWidget {
             // Signup Link (UI only)
             Align(
               alignment: Alignment.center,
-              child: RichText(
-                text: TextSpan(
-                  text: "Don't have an account? ",
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.black,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: "Sign Up",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF001233),
-                      ),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SignupScreenUI(),
                     ),
-                  ],
+                  );
+                },
+                child: RichText(
+                  text: TextSpan(
+                    text: "Don't have an account? ",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.black,
+                    ),
+                    children: const [
+                      TextSpan(
+                        text: "Sign Up",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF001233),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

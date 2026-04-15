@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled/features/auth/log_in.dart';
 
-import 'auth_background.dart';
-import 'auth_textfield.dart';
+import '../widgets/auth_background.dart';
+import '../widgets/auth_textfield.dart';
 
 
 
@@ -48,22 +49,31 @@ class SignupScreenUI extends StatelessWidget {
 
             SizedBox(height: 22.h),
 
-            // Sign Up Button (UI only)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                height: 56.h,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF001233),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  "Sign Up",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreenUI(),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 56.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF001233),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Sign Up",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -114,25 +124,34 @@ class SignupScreenUI extends StatelessWidget {
 
             SizedBox(height: 10.h),
 
-            // Login Link (UI only)
             Align(
               alignment: Alignment.center,
-              child: RichText(
-                text: TextSpan(
-                  text: "Already have an account? ",
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.black,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: "Login",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF001233),
-                      ),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreenUI(),
                     ),
-                  ],
+                  );
+                },
+                child: RichText(
+                  text: TextSpan(
+                    text: "Already have an account? ",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.black,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: "Login",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF001233),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

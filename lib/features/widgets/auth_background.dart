@@ -79,10 +79,15 @@ class AuthBackgroundUI extends StatelessWidget {
                   // Back button (UI only)
                   Padding(
                     padding: EdgeInsets.only(left: 16.w),
-                    child: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Colors.black,
-                      size: 24.w,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context); // cleaner here
+                      },
+                      child: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.black,
+                        size: 24.w,
+                      ),
                     ),
                   ),
 
