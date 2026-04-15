@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../widgets/auth_background.dart';
 import '../widgets/auth_textfield.dart';
+import 'log_in.dart';
 
 
 
@@ -54,19 +55,29 @@ class ResetPasswordScreen1UI extends StatelessWidget {
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                height: 56.h,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF001233),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  "Submit",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ResetPasswordScreen2UI(),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 56.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF001233),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Submit",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -107,7 +118,7 @@ class ResetPasswordScreen2UI extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'Your new password has been sent to your email',
+                    'A password reset link has been sent to your email',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: const Color(0xFF2D2D2D),
@@ -124,6 +135,35 @@ class ResetPasswordScreen2UI extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreenUI(),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 56.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF001233),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Continue to Login",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
