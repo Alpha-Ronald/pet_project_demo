@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled/features/auth/log_in.dart';
+import 'package:untitled/services/auth_service.dart';
 
 import '../widgets/auth_background.dart';
 import '../widgets/auth_textfield.dart';
@@ -8,7 +9,12 @@ import '../widgets/auth_textfield.dart';
 
 
 class SignupScreenUI extends StatelessWidget {
-  const SignupScreenUI({super.key});
+   SignupScreenUI({super.key});
+
+  final emailController = TextEditingController();
+   final passwordController = TextEditingController();
+   final confirmPasswordController =TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +26,11 @@ class SignupScreenUI extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const CustomTextFieldUI(label: "Full name"),
-            const CustomTextFieldUI(label: "Email"),
-            const CustomTextFieldUI(label: "Password", isPassword: true),
-            const CustomTextFieldUI(label: "Confirm Password", isPassword: true),
+            CustomTextFieldUI(label: "Email",controller: emailController,),
+             CustomTextFieldUI(label: "Password", isPassword: true, controller: passwordController,),
+            CustomTextFieldUI(label: "Confirm Password", isPassword: true, controller: confirmPasswordController,),
 
-            // Terms
+
             Padding(
               padding: EdgeInsets.only(left: 16.w),
               child: RichText(
@@ -52,13 +58,48 @@ class SignupScreenUI extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const LoginScreenUI(),
-                    ),
-                  );
+                onTap: () async {
+                  final email = emailController.text.trim();
+                  final password = passwordController.text.trim();
+                  final confirmPassword = confirmPasswordController.text.trim();
+
+                  if(password != confirmPassword){
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:  Text('Passwords do not match')));
+                    return;
+                  }
+                   try{
+                    print("Creating account with $email & $password");
+                    final user = await AuthService().signUp(email, password);
+
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:  Text('Verification email sent')));
+
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => LoginScreenUI()));
+
+                   }catch(e){
+                    String message = "Signup failed";
+                    print(e.toString());
+                    print(e);
+
+
+                    if (e.toString().contains("email-already-in-use")){
+                      message = "Email already in use";
+
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar( SnackBar(content:  Text(message)));
+
+                   }
+
+
+
+
+
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (_) => const LoginScreenUI(),
+                  //   ),
+                  // );
                 },
                 child: Container(
                   height: 56.h,

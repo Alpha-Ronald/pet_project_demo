@@ -7,6 +7,7 @@ class CustomTextFieldUI extends StatelessWidget {
   final bool isPassword;
   final double? height;
   final double? width;
+  final TextEditingController? controller;
 
   const CustomTextFieldUI({
     super.key,
@@ -14,6 +15,7 @@ class CustomTextFieldUI extends StatelessWidget {
     this.isPassword = false,
     this.height,
     this.width,
+    this.controller
   });
 
   @override
@@ -24,8 +26,9 @@ class CustomTextFieldUI extends StatelessWidget {
         width: width ?? 358.w,
         height: height ?? 72.h,
         child: TextField(
-          obscureText: isPassword, // static (no toggle)
-          enabled: false, // UI-only (non-interactive)
+          controller: controller,
+          obscureText: isPassword,
+          enabled: true,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,

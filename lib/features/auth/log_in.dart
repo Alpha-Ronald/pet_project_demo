@@ -133,7 +133,7 @@ class LoginScreenUI extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const SignupScreenUI(),
+                      builder: (_) => SignupScreenUI(),
                     ),
                   );
                 },

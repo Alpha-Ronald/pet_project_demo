@@ -81,7 +81,7 @@ class AuthBackgroundUI extends StatelessWidget {
                     padding: EdgeInsets.only(left: 16.w),
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pop(context); // cleaner here
+                        Navigator.pop(context);
                       },
                       child: Icon(
                         Icons.arrow_back_ios_new_rounded,
