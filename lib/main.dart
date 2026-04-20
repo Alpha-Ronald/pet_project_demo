@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-// import 'authentication/forgot_password_screen.dart';
-// import 'authentication/login_screen.dart';
-// import 'authentication/session5.dart';
 import 'features/auth/sign_up.dart';
 import 'firebase_options.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(375, 812), // or your design size
+      designSize: const Size(375, 812),
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,

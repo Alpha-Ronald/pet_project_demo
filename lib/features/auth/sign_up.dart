@@ -8,13 +8,20 @@ import '../widgets/auth_textfield.dart';
 
 
 
-class SignupScreenUI extends StatelessWidget {
+class SignupScreenUI extends StatefulWidget {
    SignupScreenUI({super.key});
 
+  @override
+  State<SignupScreenUI> createState() => _SignupScreenUIState();
+}
+
+class _SignupScreenUIState extends State<SignupScreenUI> {
   final emailController = TextEditingController();
+
    final passwordController = TextEditingController();
    final confirmPasswordController =TextEditingController();
 
+   bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +34,9 @@ class SignupScreenUI extends StatelessWidget {
           children: [
             const CustomTextFieldUI(label: "Full name"),
             CustomTextFieldUI(label: "Email",controller: emailController,),
-             CustomTextFieldUI(label: "Password", isPassword: true, controller: passwordController,),
+            CustomTextFieldUI(label: "Address"),
+
+            CustomTextFieldUI(label: "Password", isPassword: true, controller: passwordController,),
             CustomTextFieldUI(label: "Confirm Password", isPassword: true, controller: confirmPasswordController,),
 
 
@@ -58,7 +67,7 @@ class SignupScreenUI extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: GestureDetector(
-                onTap: () async {
+                onTap: isLoading ? null : () async {
                   final email = emailController.text.trim();
                   final password = passwordController.text.trim();
                   final confirmPassword = confirmPasswordController.text.trim();
@@ -67,6 +76,11 @@ class SignupScreenUI extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:  Text('Passwords do not match')));
                     return;
                   }
+
+                  setState(() {
+                    isLoading = true;
+                  });
+
                    try{
                     print("Creating account with $email & $password");
                     final user = await AuthService().signUp(email, password);
@@ -88,6 +102,11 @@ class SignupScreenUI extends StatelessWidget {
 
                     ScaffoldMessenger.of(context).showSnackBar( SnackBar(content:  Text(message)));
 
+                   }finally{
+                     setState(() {
+                       isLoading = false;
+                     });
+
                    }
 
 
@@ -108,7 +127,7 @@ class SignupScreenUI extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   alignment: Alignment.center,
-                  child: Text(
+                  child: isLoading? CircularProgressIndicator(color: Colors.white,): Text(
                     "Sign Up",
                     style: TextStyle(
                       color: Colors.white,
@@ -172,7 +191,7 @@ class SignupScreenUI extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const LoginScreenUI(),
+                      builder: (_) =>  LoginScreenUI(),
                     ),
                   );
                 },

@@ -2,13 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled/features/auth/reset_password.dart';
 import 'package:untitled/features/auth/sign_up.dart';
+import 'package:untitled/services/auth_service.dart';
 
 import '../dashboard/dashboard.dart';
 import '../widgets/auth_background.dart';
 import '../widgets/auth_textfield.dart';
 
-class LoginScreenUI extends StatelessWidget {
-  const LoginScreenUI({super.key});
+class LoginScreenUI extends StatefulWidget {
+  LoginScreenUI({super.key});
+
+  @override
+  State<LoginScreenUI> createState() => _LoginScreenUIState();
+}
+
+class _LoginScreenUIState extends State<LoginScreenUI> {
+  final emailController = TextEditingController();
+
+  final passwordController = TextEditingController();
+
+  bool isLoading  = false;
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +32,15 @@ class LoginScreenUI extends StatelessWidget {
           children: [
             SizedBox(height: 50.h),
 
-            const CustomTextFieldUI(label: "Email"),
-            const CustomTextFieldUI(label: "Password", isPassword: true),
+            CustomTextFieldUI(
+              label: "Email",
+              controller: emailController,
+            ),
+            CustomTextFieldUI(
+              label: "Password",
+              isPassword: true,
+              controller: passwordController,
+            ),
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -61,19 +80,67 @@ class LoginScreenUI extends StatelessWidget {
                     ),
                   );
                 },
-                child: Container(
-                  height: 56.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF001233),
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Login",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
+                child: GestureDetector(
+                  onTap: isLoading ? null : () async {
+                    final email = emailController.text.trim();
+                    final password = passwordController.text.trim();
+
+                    setState(() {
+                      isLoading = true;
+                    });
+
+                    try {
+                      final user = await AuthService().login(email, password);
+
+                      if (user != null && user.emailVerified) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DashboardScreenUI(),
+                            ));
+                      } else {
+                        final currentUser = AuthService().currentUser;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Email not verified, verification link sent again')));
+
+                        await currentUser?.sendEmailVerification();
+
+
+                      }
+                    } catch (e) {
+
+                      String message = "Login failed";
+                      print(e.toString());
+                      print(e);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.toString()))
+                      );
+
+
+                    }
+                    finally{
+                      setState(() {
+                        isLoading = false;
+                      });
+
+                    }
+                  },
+                  child: Container(
+                    height: 56.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF001233),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    alignment: Alignment.center,
+                    child: isLoading? CircularProgressIndicator(color: Colors.white,):Text(
+                      "Login",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -125,7 +192,6 @@ class LoginScreenUI extends StatelessWidget {
 
             SizedBox(height: 20.h),
 
-            // Signup Link (UI only)
             Align(
               alignment: Alignment.center,
               child: GestureDetector(
