@@ -112,7 +112,7 @@ class _LoginScreenUIState extends State<LoginScreenUI> {
                     } catch (e) {
 
                       String message = "Login failed";
-                      print(e.toString());
+                      debugPrint(e.toString());
                       print(e);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(e.toString()))
