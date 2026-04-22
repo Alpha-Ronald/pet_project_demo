@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled/features/auth/log_in.dart';
 import 'package:untitled/services/auth_service.dart';
 
+import '../../services/user_service.dart';
 import '../widgets/auth_background.dart';
 import '../widgets/auth_textfield.dart';
 
@@ -20,8 +21,11 @@ class _SignupScreenUIState extends State<SignupScreenUI> {
 
    final passwordController = TextEditingController();
    final confirmPasswordController =TextEditingController();
+  final nameController = TextEditingController();
+  final addressController = TextEditingController();
 
-   bool isLoading = false;
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +36,9 @@ class _SignupScreenUIState extends State<SignupScreenUI> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CustomTextFieldUI(label: "Full name"),
+            CustomTextFieldUI(label: "Full name", controller: nameController),
             CustomTextFieldUI(label: "Email",controller: emailController,),
-            CustomTextFieldUI(label: "Address"),
+            CustomTextFieldUI(label: "Address", controller: addressController,),
 
             CustomTextFieldUI(label: "Password", isPassword: true, controller: passwordController,),
             CustomTextFieldUI(label: "Confirm Password", isPassword: true, controller: confirmPasswordController,),
@@ -71,6 +75,9 @@ class _SignupScreenUIState extends State<SignupScreenUI> {
                   final email = emailController.text.trim();
                   final password = passwordController.text.trim();
                   final confirmPassword = confirmPasswordController.text.trim();
+                  final name = nameController.text.trim();
+                  final address = addressController.text.trim();
+
 
                   if(password != confirmPassword){
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:  Text('Passwords do not match')));
@@ -87,9 +94,17 @@ class _SignupScreenUIState extends State<SignupScreenUI> {
 
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:  Text('Verification email sent')));
 
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => LoginScreenUI()));
+                    if(user != null){
+
+                      await UserService().createUser(uid: user.uid, email: email, name: name, address: address
+
+                  );
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => LoginScreenUI()));
+
+                    }
 
                    }catch(e){
+
                     String message = "Signup failed";
                     print(e.toString());
                     print(e);

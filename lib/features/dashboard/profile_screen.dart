@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfileSection extends StatelessWidget {
-  const ProfileSection({super.key});
+  const ProfileSection({super.key, this.userData});
+
+  final Map<String, dynamic>? userData;
 
   @override
   Widget build(BuildContext context) {
-    final name = "Ronald Adewoye";
-    final email = "ronald.dev@example.com";
-    final address = "Abuja, Nigeria";
+    final name = userData?['name'] ?? "";
+    final email = userData?['email'] ?? "";
+    final address = userData?['address'] ?? "";
 
     return SafeArea(
       child: Padding(

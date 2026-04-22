@@ -5,7 +5,9 @@ import 'package:untitled/features/dashboard/profile_screen.dart';
 import 'home.dart';
 
 class DashboardScreenUI extends StatefulWidget {
-  const DashboardScreenUI({super.key});
+  const DashboardScreenUI({super.key, this.userData});
+
+  final Map<String, dynamic>? userData;
 
   @override
   State<DashboardScreenUI> createState() => _DashboardScreenUIState();
@@ -14,10 +16,10 @@ class DashboardScreenUI extends StatefulWidget {
 class _DashboardScreenUIState extends State<DashboardScreenUI> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
+  late final List<Widget> _pages =  [
     HomeSection(),
     CartSection(),
-    ProfileSection(),
+    ProfileSection(userData: widget.userData,),
   ];
 
   @override

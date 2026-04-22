@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled/features/auth/reset_password.dart';
 import 'package:untitled/features/auth/sign_up.dart';
 import 'package:untitled/services/auth_service.dart';
+import 'package:untitled/services/user_service.dart';
 
 import '../dashboard/dashboard.dart';
 import '../widgets/auth_background.dart';
@@ -93,10 +94,16 @@ class _LoginScreenUIState extends State<LoginScreenUI> {
                       final user = await AuthService().login(email, password);
 
                       if (user != null && user.emailVerified) {
+
+                        final userData = await UserService().getUser(user.uid);
+
+                        print(userData);
+
+
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const DashboardScreenUI(),
+                              builder: (_) => DashboardScreenUI(userData: userData,),
                             ));
                       } else {
                         final currentUser = AuthService().currentUser;
