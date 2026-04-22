@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:untitled/features/dashboard/profile_screen.dart';
 
 import 'home.dart';
 
@@ -51,48 +52,7 @@ class _DashboardScreenUIState extends State<DashboardScreenUI> {
   }
 }
 
-class ProfileSection extends StatelessWidget {
-  const ProfileSection({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 40.r,
-              backgroundColor: Colors.grey.shade300,
-              child: const Icon(Icons.person, size: 40),
-            ),
-
-            SizedBox(height: 12.h),
-
-            Text(
-              "John Doe",
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
-            SizedBox(height: 20.h),
-
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Settings"),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Logout"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class CartSection extends StatelessWidget {
   const CartSection({super.key});
