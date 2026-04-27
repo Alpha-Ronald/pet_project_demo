@@ -30,6 +30,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_screenutil:
+  firebase_core:
+  firebase_auth:
+  cloud_firestore:
+  firebase_storage:
+  image_picker:
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -39,17 +46,28 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_screenutil:
-  firebase_core:
-  firebase_auth:
-  cloud_firestore: 
+  flutter_native_splash:
+  flutter_launcher_icons:
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+
   flutter_lints: ^4.0.0
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/logo_icon.png
+
+  android: true
+  ios: true
+
+  android_12:
+    icon_background_color: "#ffffff"
+    image: assets/logo_icon.png
+
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -66,6 +84,7 @@ flutter:
   assets:
     - assets/my_picture.jpg
     - assets/test_image.jpg
+    - assets/logo_icon.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
