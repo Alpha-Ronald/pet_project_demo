@@ -21,7 +21,8 @@ class _LoginScreenUIState extends State<LoginScreenUI> {
 
   final passwordController = TextEditingController();
 
-  bool isLoading  = false;
+  bool isLoading = false;
+  String? selectedRole;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +33,21 @@ class _LoginScreenUIState extends State<LoginScreenUI> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 50.h),
+
+            Padding(
+              
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: DropdownButtonFormField(
+                  value: selectedRole,
+                  hint: Text('Select a Role'),
+                  items: ["Customer", "Admin"].map((role) =>
+                      DropdownMenuItem(value: role, child: Text(role))).toList(),
+                  onChanged: (value){
+                    setState(() {
+                      selectedRole = value;
+                    });
+                  }),
+            ),
 
             CustomTextFieldUI(
               label: "Email",
@@ -82,58 +98,55 @@ class _LoginScreenUIState extends State<LoginScreenUI> {
                   );
                 },
                 child: GestureDetector(
-                  onTap: isLoading ? null : () async {
-                    final email = emailController.text.trim();
-                    final password = passwordController.text.trim();
+                  onTap: isLoading
+                      ? null
+                      : () async {
+                          final email = emailController.text.trim();
+                          final password = passwordController.text.trim();
 
-                    setState(() {
-                      isLoading = true;
-                    });
+                          setState(() {
+                            isLoading = true;
+                          });
 
-                    try {
-                      final user = await AuthService().login(email, password);
+                          try {
+                            final user =
+                                await AuthService().login(email, password);
 
-                      if (user != null && user.emailVerified) {
+                            if (user != null && user.emailVerified) {
+                              final userData =
+                                  await UserService().getUser(user.uid);
 
-                        final userData = await UserService().getUser(user.uid);
+                              print(userData);
 
-                        print(userData);
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => DashboardScreenUI(
+                                      userData: userData,
+                                    ),
+                                  ));
+                            } else {
+                              final currentUser = AuthService().currentUser;
 
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Email not verified, verification link sent again')));
 
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DashboardScreenUI(userData: userData,),
-                            ));
-                      } else {
-                        final currentUser = AuthService().currentUser;
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Email not verified, verification link sent again')));
-
-                        await currentUser?.sendEmailVerification();
-
-
-                      }
-                    } catch (e) {
-
-                      String message = "Login failed";
-                      debugPrint(e.toString());
-                      print(e);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(e.toString()))
-                      );
-
-
-                    }
-                    finally{
-                      setState(() {
-                        isLoading = false;
-                      });
-
-                    }
-                  },
+                              await currentUser?.sendEmailVerification();
+                            }
+                          } catch (e) {
+                            String message = "Login failed";
+                            debugPrint(e.toString());
+                            print(e);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.toString())));
+                          } finally {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          }
+                        },
                   child: Container(
                     height: 56.h,
                     decoration: BoxDecoration(
@@ -141,14 +154,18 @@ class _LoginScreenUIState extends State<LoginScreenUI> {
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     alignment: Alignment.center,
-                    child: isLoading? CircularProgressIndicator(color: Colors.white,):Text(
-                      "Login",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: isLoading
+                        ? CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
               ),

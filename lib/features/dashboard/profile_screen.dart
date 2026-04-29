@@ -3,6 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:untitled/features/widgets/auth_textfield.dart';
+import 'package:untitled/services/auth_service.dart';
+import 'package:untitled/services/user_service.dart';
+
+import '../../services/storage_service.dart';
 
 class ProfileSection extends StatefulWidget {
   const ProfileSection({super.key, this.userData});
@@ -16,6 +21,35 @@ class ProfileSection extends StatefulWidget {
 class _ProfileSectionState extends State<ProfileSection> {
   File? selectedImage;
   bool isLoading = false;
+
+  final nameController = TextEditingController();
+  final addressController = TextEditingController();
+
+  String? uploadedImageURL;
+  bool hasChanged = false;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    nameController.text = widget.userData?['name'] ?? "";
+    addressController.text = widget.userData?['address'] ?? "";
+
+    nameController.addListener(_onChanged);
+    addressController.addListener(_onChanged);
+
+  }
+
+
+  void _onChanged(){
+    setState(() {
+      hasChanged = true;
+    });
+  }
+
+
+
 
   Future<File?> pickImage() async {
     final picker = ImagePicker();
@@ -49,39 +83,99 @@ class _ProfileSectionState extends State<ProfileSection> {
       child: Padding(
         padding: EdgeInsets.all(16.w),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            GestureDetector(
-              onTap: () async {
-                final file = await pickImage();
-                if (file != null) {
-                  setState(() {
-                    selectedImage = file;
-                  });
-                }
-              },
-              child: CircleAvatar(
-                radius: 40.r,
-                backgroundColor: Colors.grey.shade300,
-                backgroundImage:
-                    selectedImage != null ? FileImage(selectedImage!) : null,
-                child: selectedImage == null
-                    ? Text(getInitials(name),
-                        style: TextStyle(fontSize: 20, color: Colors.black))
-                    : null,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 40.r,
+                      backgroundColor: Colors.grey.shade300,
+                      backgroundImage:
+                      selectedImage != null ? FileImage(selectedImage!) : null,
+                      child: selectedImage == null
+                          ? Text(getInitials(name),
+                          style: TextStyle(fontSize: 20, color: Colors.black))
+                          : null,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        final file = await pickImage();
+
+
+                        if (file != null) {
+                          setState(() {
+
+                            isLoading = true;
+                          });
+
+                          try{
+                            final uid = AuthService().currentUser!.uid;
+
+                            final url = await StorageService().uploadProfileImage(uid: uid, file: file);
+
+                            setState(() {
+                              selectedImage = file;
+                              uploadedImageURL =url;
+                              hasChanged =true;
+                            });
+                          }
+                          catch(e){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('UPLOAD FAILED')));
+
+                          }
+
+                          setState(() {
+                            isLoading= false;
+                          });
+                        }
+
+                      },
+                      child: Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(6.w),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            shape: BoxShape.circle,
+                          ),
+
+                          child: Icon(Icons.edit,color: Colors.white,size: 16,),
+                        ),
+                      ),
+                    )
+
+                  ]
+                ),
+
+
+
+
+              ],
             ),
 
 
             SizedBox(height: 12.h),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+
+
+            CustomTextFieldUI(label: "Name", controller: nameController,),
+            CustomTextFieldUI(label: "Address", controller: addressController,),
+
+            // Text(
+            //   name,
+            //   style: TextStyle(
+            //     fontSize: 16.sp,
+            //     fontWeight: FontWeight.w600,
+            //   ),
+            // ),
+
+
             SizedBox(height: 4.h),
             Text(
               email,
@@ -91,6 +185,47 @@ class _ProfileSectionState extends State<ProfileSection> {
               ),
             ),
             SizedBox(height: 20.h),
+
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(onPressed: isLoading ?null :()async{
+                setState(() {
+                  isLoading =true;
+                });
+
+                try{
+                  final uid = AuthService().currentUser!.uid;
+
+                  await UserService().updateUser(uid: uid, data:{
+                  "name": nameController.text.trim,
+                    "address": addressController.text.trim(),
+                    if(uploadedImageURL != null)
+                      "imageUrl": uploadedImageURL
+
+                  }
+
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Profile succesfully updated')));
+
+
+                }catch(e){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Update failed")));
+
+                  }
+
+              },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: hasChanged ? Colors.green: Colors.grey,
+                    disabledBackgroundColor: Colors.grey.shade400,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                  ),
+
+                  child: Text('Update Profile'))
+            ),
+
+            SizedBox(height: 40.h),
             Container(
               width: double.infinity,
               padding: EdgeInsets.all(12.w),
