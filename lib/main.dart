@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'features/auth/sign_up.dart';
 import 'firebase_options.dart';
@@ -18,7 +19,7 @@ void main() async{
     print("❌ Firebase init failed: $e");
   }
 
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

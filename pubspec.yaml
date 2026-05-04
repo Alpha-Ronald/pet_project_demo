@@ -36,6 +36,7 @@ dependencies:
   cloud_firestore:
   firebase_storage:
   image_picker:
+  flutter_riverpod:
 
 
 

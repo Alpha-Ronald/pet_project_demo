@@ -1,26 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:untitled/features/dashboard/profile_screen.dart';
 
+import '../../services/user_provider.dart';
 import 'home.dart';
 
-class DashboardScreenUI extends StatefulWidget {
-  const DashboardScreenUI({super.key, this.userData});
+class DashboardScreenUI extends ConsumerStatefulWidget {
+  const DashboardScreenUI({super.key});
 
-  final Map<String, dynamic>? userData;
+
 
   @override
-  State<DashboardScreenUI> createState() => _DashboardScreenUIState();
+  ConsumerState<DashboardScreenUI> createState() => _DashboardScreenUIState();
 }
 
-class _DashboardScreenUIState extends State<DashboardScreenUI> {
+class _DashboardScreenUIState extends ConsumerState<DashboardScreenUI> {
   int _currentIndex = 0;
 
   late final List<Widget> _pages =  [
     HomeSection(),
     CartSection(),
-    ProfileSection(userData: widget.userData,),
+    ProfileSection(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask((){
+      ref.read(userProvider.notifier).fetchUser();
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

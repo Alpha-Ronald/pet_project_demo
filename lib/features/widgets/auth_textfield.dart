@@ -8,6 +8,8 @@ class CustomTextFieldUI extends StatelessWidget {
   final double? height;
   final double? width;
   final TextEditingController? controller;
+  final Function(String)? onChanged;
+
 
   const CustomTextFieldUI({
     super.key,
@@ -15,7 +17,8 @@ class CustomTextFieldUI extends StatelessWidget {
     this.isPassword = false,
     this.height,
     this.width,
-    this.controller
+    this.controller,
+    this.onChanged,
   });
 
   @override
@@ -28,6 +31,7 @@ class CustomTextFieldUI extends StatelessWidget {
         child: TextField(
           controller: controller,
           obscureText: isPassword,
+          onChanged: onChanged,
           enabled: true,
           decoration: InputDecoration(
             filled: true,

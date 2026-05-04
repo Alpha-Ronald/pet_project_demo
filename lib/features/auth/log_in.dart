@@ -113,16 +113,13 @@ class _LoginScreenUIState extends State<LoginScreenUI> {
                                 await AuthService().login(email, password);
 
                             if (user != null && user.emailVerified) {
-                              final userData =
-                                  await UserService().getUser(user.uid);
 
-                              print(userData);
 
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => DashboardScreenUI(
-                                      userData: userData,
+
                                     ),
                                   ));
                             } else {

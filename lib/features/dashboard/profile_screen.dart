@@ -1,24 +1,26 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:untitled/features/widgets/auth_textfield.dart';
 import 'package:untitled/services/auth_service.dart';
+import 'package:untitled/services/user_provider.dart';
 import 'package:untitled/services/user_service.dart';
 
 import '../../services/storage_service.dart';
 
-class ProfileSection extends StatefulWidget {
+class ProfileSection extends ConsumerStatefulWidget {
   const ProfileSection({super.key, this.userData});
 
   final Map<String, dynamic>? userData;
 
   @override
-  State<ProfileSection> createState() => _ProfileSectionState();
+  ConsumerState<ProfileSection> createState() => _ProfileSectionState();
 }
 
-class _ProfileSectionState extends State<ProfileSection> {
+class _ProfileSectionState extends ConsumerState<ProfileSection> {
   File? selectedImage;
   bool isLoading = false;
 
@@ -29,33 +31,30 @@ class _ProfileSectionState extends State<ProfileSection> {
   bool hasChanged = false;
 
 
-  @override
-  void initState() {
-    super.initState();
-
-    nameController.text = widget.userData?['name'] ?? "";
-    addressController.text = widget.userData?['address'] ?? "";
-
-    nameController.addListener(_onChanged);
-    addressController.addListener(_onChanged);
-
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   nameController.text = widget.userData?['name'] ?? "";
+  //   addressController.text = widget.userData?['address'] ?? "";
+  //
+  //   nameController.addListener(_onChanged);
+  //   addressController.addListener(_onChanged);
+  //
+  // }
 
 
   void _onChanged() {
-    final originalName = widget.userData?['name'] ?? "";
-    final originalAddress = widget.userData?['address'] ?? "";
+    final user = ref.read(userProvider);
 
     final isDifferent =
-        nameController.text.trim() != originalName ||
-            addressController.text.trim() != originalAddress ||
+        nameController.text.trim() != user?.name ||
+            addressController.text.trim() != user?.address ||
             selectedImage != null;
 
-    setState(() {
-      hasChanged = isDifferent;
-    });
+    setState(() => hasChanged = isDifferent);
   }
-
+  bool initialized = false;
 
 
   Future<File?> pickImage() async {
@@ -82,9 +81,18 @@ class _ProfileSectionState extends State<ProfileSection> {
 
   @override
   Widget build(BuildContext context) {
-    final name = widget.userData?['name'] ?? "";
-    final email = widget.userData?['email'] ?? "";
-    final address = widget.userData?['address'] ?? "";
+    final user = ref.watch(userProvider); // ✅ FIXED
+
+    if (user == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (!initialized) {
+      nameController.text = user.name;
+      addressController.text = user.address;
+      initialized = true;
+    }
+
 
     return SafeArea(
       child: Padding(
@@ -104,17 +112,15 @@ class _ProfileSectionState extends State<ProfileSection> {
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage: selectedImage != null
                           ? FileImage(selectedImage!)
-                          : (widget.userData?['imageUrl'] != null
-                          ? NetworkImage(widget.userData!['imageUrl'])
-                          : null) as ImageProvider?,
+                          : (user.imageUrl != null
+                          ? NetworkImage(user.imageUrl!)
+                          : null),
                       child: selectedImage == null &&
-                          widget.userData?['imageUrl'] == null
-                          ? Text(
-                        getInitials(name),
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      )
+                          user.imageUrl == null
+                          ? Text(getInitials(user.name))
                           : null,
                     ),
+
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -179,8 +185,8 @@ class _ProfileSectionState extends State<ProfileSection> {
             SizedBox(height: 12.h),
 
 
-            CustomTextFieldUI(label: "Name", controller: nameController,),
-            CustomTextFieldUI(label: "Address", controller: addressController,),
+            CustomTextFieldUI(label: "Name", controller: nameController,onChanged: (_) => _onChanged(),),
+            CustomTextFieldUI(label: "Address", controller: addressController,   onChanged: (_) => _onChanged(),),
 
             // Text(
             //   name,
@@ -193,7 +199,7 @@ class _ProfileSectionState extends State<ProfileSection> {
 
             SizedBox(height: 4.h),
             Text(
-              email,
+              user!.email,
               style: TextStyle(
                 fontSize: 13.sp,
                 color: Colors.grey,
@@ -204,47 +210,38 @@ class _ProfileSectionState extends State<ProfileSection> {
 
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                  onPressed: (!hasChanged || isLoading) ?null :()async{
-                setState(() {
-                  isLoading =true;
-                });
+              child:  ElevatedButton(
+                onPressed: (!hasChanged || isLoading)
+                    ? null
+                    : () async {
+                  setState(() => isLoading = true);
 
-                try{
-                  final uid = AuthService().currentUser!.uid;
+                  try {
+                    await ref
+                        .read(userProvider.notifier)
+                        .updateUser(
+                      name: nameController.text.trim(),
+                      address: addressController.text.trim(),
+                      imageUrl: uploadedImageURL,
+                    );
 
-                  await UserService().updateUser(uid: uid, data:{
-                  "name": nameController.text.trim(),
-                    "address": addressController.text.trim(),
-                    if(uploadedImageURL != null)
-                      "imageUrl": uploadedImageURL
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Updated")),
+                    );
 
+                    setState(() {
+                      hasChanged = false;
+                      selectedImage = null;
+                      uploadedImageURL = null;
+                    });
+                  } finally {
+                    setState(() => isLoading = false);
                   }
-
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Profile succesfully updated')));
-
-                  setState(() {
-                    hasChanged = false;
-                    uploadedImageURL = null;
-                  });
-
-
-                }catch(e){
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Update failed")));
-
-                  }
-
-              },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: hasChanged ? Colors.green: Colors.grey,
-                    disabledBackgroundColor: Colors.grey.shade400,
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
-                  ),
-
-                  child: Text('Update Profile'))
-            ),
+                },
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text("Update Profile"),
+              ),),
 
             SizedBox(height: 40.h),
             Container(
@@ -260,7 +257,7 @@ class _ProfileSectionState extends State<ProfileSection> {
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
-                      address,
+                      user.address,
                       style: TextStyle(fontSize: 13.sp),
                     ),
                   ),
