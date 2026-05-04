@@ -42,12 +42,19 @@ class _ProfileSectionState extends State<ProfileSection> {
   }
 
 
-  void _onChanged(){
+  void _onChanged() {
+    final originalName = widget.userData?['name'] ?? "";
+    final originalAddress = widget.userData?['address'] ?? "";
+
+    final isDifferent =
+        nameController.text.trim() != originalName ||
+            addressController.text.trim() != originalAddress ||
+            selectedImage != null;
+
     setState(() {
-      hasChanged = true;
+      hasChanged = isDifferent;
     });
   }
-
 
 
 
@@ -95,50 +102,58 @@ class _ProfileSectionState extends State<ProfileSection> {
                     CircleAvatar(
                       radius: 40.r,
                       backgroundColor: Colors.grey.shade300,
-                      backgroundImage:
-                      selectedImage != null ? FileImage(selectedImage!) : null,
-                      child: selectedImage == null
-                          ? Text(getInitials(name),
-                          style: TextStyle(fontSize: 20, color: Colors.black))
+                      backgroundImage: selectedImage != null
+                          ? FileImage(selectedImage!)
+                          : (widget.userData?['imageUrl'] != null
+                          ? NetworkImage(widget.userData!['imageUrl'])
+                          : null) as ImageProvider?,
+                      child: selectedImage == null &&
+                          widget.userData?['imageUrl'] == null
+                          ? Text(
+                        getInitials(name),
+                        style: TextStyle(fontSize: 20, color: Colors.black),
+                      )
                           : null,
                     ),
-                    GestureDetector(
-                      onTap: () async {
-                        final file = await pickImage();
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final file = await pickImage();
 
 
-                        if (file != null) {
-                          setState(() {
-
-                            isLoading = true;
-                          });
-
-                          try{
-                            final uid = AuthService().currentUser!.uid;
-
-                            final url = await StorageService().uploadProfileImage(uid: uid, file: file);
-
+                          if (file != null) {
                             setState(() {
-                              selectedImage = file;
-                              uploadedImageURL =url;
-                              hasChanged =true;
+
+                              isLoading = true;
                             });
+
+                            try{
+                              final uid = AuthService().currentUser!.uid;
+
+                              final url = await StorageService().uploadProfileImage(uid: uid, file: file);
+
+                              setState(() {
+                                selectedImage = file;
+                                uploadedImageURL =url;
+                                hasChanged =true;
+                              });
+                            }
+                            catch(e){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('UPLOAD FAILED')));
+
+                            }
+
+                            finally {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
                           }
-                          catch(e){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('UPLOAD FAILED')));
 
-                          }
-
-                          setState(() {
-                            isLoading= false;
-                          });
-                        }
-
-                      },
-                      child: Positioned(
-                        bottom: 0,
-                        right: 0,
+                        },
                         child: Container(
                           padding: EdgeInsets.all(6.w),
                           decoration: BoxDecoration(
@@ -189,7 +204,8 @@ class _ProfileSectionState extends State<ProfileSection> {
 
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(onPressed: isLoading ?null :()async{
+              child: ElevatedButton(
+                  onPressed: (!hasChanged || isLoading) ?null :()async{
                 setState(() {
                   isLoading =true;
                 });
@@ -198,7 +214,7 @@ class _ProfileSectionState extends State<ProfileSection> {
                   final uid = AuthService().currentUser!.uid;
 
                   await UserService().updateUser(uid: uid, data:{
-                  "name": nameController.text.trim,
+                  "name": nameController.text.trim(),
                     "address": addressController.text.trim(),
                     if(uploadedImageURL != null)
                       "imageUrl": uploadedImageURL
@@ -207,6 +223,11 @@ class _ProfileSectionState extends State<ProfileSection> {
 
                   );
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Profile succesfully updated')));
+
+                  setState(() {
+                    hasChanged = false;
+                    uploadedImageURL = null;
+                  });
 
 
                 }catch(e){
